@@ -1,0 +1,117 @@
+# Copyright 2022. All Rights Reserved.
+# Author: Bruce-Lee-LY
+# Date: 16:19:40 on Sun, May 29, 2022
+#
+# Description: cmake for cuda hook
+
+cmake_minimum_required (VERSION 3.8)
+
+project (cuda_hook LANGUAGES C CXX)
+
+set (CMAKE_VERBOSE_MAKEFILE ${HOOK_VERBOSE_MAKEFILE})
+
+set (CMAKE_C_VISIBILITY_PRESET hidden)
+set (CMAKE_CXX_VISIBILITY_PRESET hidden)
+set (CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+set (CMAKE_C_FLAGS "-std=c11")
+set (CMAKE_C_FLAGS_DEBUG "$ENV{CFLAGS} -O0 -g2 -ggdb -DHOOK_BUILD_DEBUG")
+set (CMAKE_C_FLAGS_RELEASE "$ENV{CFLAGS} -O3")
+
+set (CMAKE_CXX_FLAGS "-std=c++11")
+set (CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -g2 -ggdb -DHOOK_BUILD_DEBUG")
+set (CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3")
+
+set (CMAKE_SHARED_LINKER_FLAGS "-s -Wl,--exclude-libs,ALL")
+set (CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
+
+add_compile_options (
+    -Wall
+    -Werror
+    -Wextra
+    -Wswitch-default
+    -Wfloat-equal
+    -Wshadow
+    -Wcast-qual
+)
+
+include_directories (
+    ${PROJECT_SOURCE_DIR}/src/common
+    ${PROJECT_SOURCE_DIR}/src/cuda
+    ${PROJECT_SOURCE_DIR}/src/nvml
+    ${PROJECT_SOURCE_DIR}/src/cudart
+    ${PROJECT_SOURCE_DIR}/src/cudnn
+    ${PROJECT_SOURCE_DIR}/src/cublas
+    ${PROJECT_SOURCE_DIR}/src/cublasLt
+    ${PROJECT_SOURCE_DIR}/src/cufft
+    ${PROJECT_SOURCE_DIR}/src/nvtx
+    ${PROJECT_SOURCE_DIR}/src/nvrtc
+    ${PROJECT_SOURCE_DIR}/src/curand
+    ${PROJECT_SOURCE_DIR}/src/cusparse
+    ${PROJECT_SOURCE_DIR}/src/cusolver
+)
+
+set (LIB_SRCS
+    ${PROJECT_SOURCE_DIR}/src/cuda/cuda_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/nvml/nvml_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/cudart/cudart_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/cudnn/cudnn_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/cublas/cublas_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/cublasLt/cublasLt_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/cufft/cufft_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/nvtx/nvtx_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/nvrtc/nvrtc_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/curand/curand_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/cusparse/cusparse_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/cusolver/cusolver_hook.cpp
+)
+
+# libcuda_hook.so
+add_library (cuda_hook SHARED ${LIB_SRCS})
+target_link_libraries (cuda_hook -ldl)
+
+install (TARGETS cuda_hook LIBRARY DESTINATION lib64)
+
+# libcuda_hook.a
+add_library (cuda_hook_static STATIC ${LIB_SRCS})
+target_link_libraries (cuda_hook_static -ldl)
+set_target_properties (cuda_hook_static PROPERTIES OUTPUT_NAME cuda_hook)
+
+install (TARGETS cuda_hook_static ARCHIVE DESTINATION lib64)
+
+if (HOOK_WITH_SAMPLE)
+    find_package (CUDA REQUIRED)
+    unset (CUDA_USE_STATIC_CUDA_RUNTIME CACHE)
+    option (CUDA_USE_STATIC_CUDA_RUNTIME OFF)
+
+    set (CUDA_VERBOSE_BUILD ${HOOK_VERBOSE_MAKEFILE})
+    set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std=c++11")
+
+    set (SYS_CUDART_PATH "/usr/local/cuda/targets/x86_64-linux")
+    set (SYS_CUDA_DRIVER_PATH "/usr/lib/x86_64-linux-gnu")
+
+    include_directories (
+        ${SYS_CUDART_PATH}/include
+        ${PROJECT_SOURCE_DIR}/sample/cuda/include
+    )
+
+    link_directories (
+        ${SYS_CUDART_PATH}/lib
+        ${SYS_CUDA_DRIVER_PATH}
+    )
+
+    # cuda/cudart
+    cuda_add_executable (bandwidth_test ${PROJECT_SOURCE_DIR}/sample/cuda/bandwidth_test.cu)
+    cuda_add_executable (matrix_mul ${PROJECT_SOURCE_DIR}/sample/cuda/matrix_mul.cu)
+    cuda_add_executable (vector_add ${PROJECT_SOURCE_DIR}/sample/cuda/vector_add.cu)
+
+    install (TARGETS bandwidth_test matrix_mul vector_add RUNTIME DESTINATION sample/cuda)
+
+    # nvml
+    add_executable (nvml_example ${PROJECT_SOURCE_DIR}/sample/nvml/nvml_example.c)
+    target_link_libraries (nvml_example -lnvidia-ml)
+    add_executable (supported_vgpus ${PROJECT_SOURCE_DIR}/sample/nvml/supported_vgpus.c)
+    target_link_libraries (supported_vgpus -lnvidia-ml)
+
+    install (TARGETS nvml_example supported_vgpus RUNTIME DESTINATION sample/nvml)
+endif ()

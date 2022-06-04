@@ -1,0 +1,33 @@
+BasedOnStyle: Google
+
+IndentWidth: 4
+
+TabWidth: 4
+
+UseTab: Never
+
+IndentCaseLabels: true
+
+IndentWrappedFunctionNames: true
+
+ColumnLimit: 120
+
+AccessModifierOffset: -4
+
+AllowShortFunctionsOnASingleLine: Empty
+
+AllowShortIfStatementsOnASingleLine: false
+
+AllowShortLoopsOnASingleLine: false
+
+AllowShortBlocksOnASingleLine: false
+
+AllowShortCaseLabelsOnASingleLine: false
+
+KeepEmptyLinesAtTheStartOfBlocks: true
+
+MaxEmptyLinesToKeep: 1
+
+DerivePointerAlignment: false
+
+PointerAlignment: Right
