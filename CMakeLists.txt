@@ -49,6 +49,7 @@ include_directories (
     ${PROJECT_SOURCE_DIR}/src/curand
     ${PROJECT_SOURCE_DIR}/src/cusparse
     ${PROJECT_SOURCE_DIR}/src/cusolver
+    ${PROJECT_SOURCE_DIR}/src/nvjpeg
 )
 
 set (LIB_SRCS
@@ -64,6 +65,7 @@ set (LIB_SRCS
     ${PROJECT_SOURCE_DIR}/src/curand/curand_hook.cpp
     ${PROJECT_SOURCE_DIR}/src/cusparse/cusparse_hook.cpp
     ${PROJECT_SOURCE_DIR}/src/cusolver/cusolver_hook.cpp
+    ${PROJECT_SOURCE_DIR}/src/nvjpeg/nvjpeg_hook.cpp
 )
 
 # libcuda_hook.so
@@ -100,7 +102,7 @@ if (HOOK_WITH_SAMPLE)
         ${SYS_CUDA_DRIVER_PATH}
     )
 
-    # cuda/cudart
+    # cuda
     cuda_add_executable (bandwidth_test ${PROJECT_SOURCE_DIR}/sample/cuda/bandwidth_test.cu)
     cuda_add_executable (matrix_mul ${PROJECT_SOURCE_DIR}/sample/cuda/matrix_mul.cu)
     cuda_add_executable (vector_add ${PROJECT_SOURCE_DIR}/sample/cuda/vector_add.cu)

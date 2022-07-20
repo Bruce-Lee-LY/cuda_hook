@@ -76,7 +76,8 @@ HOOK_C_API HOOK_DECL_EXPORT $ret$ $func_name$($func_param$) {
                 "NVTX_API", "").replace(
                 "CURANDAPI", "").replace(
                 "CUSPARSEAPI", "").replace(
-                "CUSOLVERAPI", "").strip(' ')
+                "CUSOLVERAPI", "").replace(
+                "NVJPEGAPI", "").strip(' ')
 
             func_param = ""
             param_type = ""

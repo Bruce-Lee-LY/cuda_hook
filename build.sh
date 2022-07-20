@@ -103,6 +103,10 @@ echo_cmd "ln -s libcusparse.so.11 libcusparse.so"
 echo_cmd "ln -s libcuda_hook.so libcusolver.so.11"
 echo_cmd "ln -s libcusolver.so.11 libcusolver.so"
 
+# nvjpeg
+echo_cmd "ln -s libcuda_hook.so libnvjpeg.so.11"
+echo_cmd "ln -s libnvjpeg.so.11 libnvjpeg.so"
+
 echo_cmd "cp -d *.so *.so.* $WORK_PATH/output/lib64"
 
 echo "========== build info =========="
