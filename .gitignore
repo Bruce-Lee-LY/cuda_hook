@@ -13,6 +13,13 @@ output/
 bin/
 log/
 model/
+ncu/
+nsys/
+roofline/
+ptx/
+sass/
+tmp/
+temp/
 
 *.o
 *.so
