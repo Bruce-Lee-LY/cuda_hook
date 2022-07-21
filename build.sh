@@ -12,13 +12,18 @@ echo "========== build enter =========="
 
 WORK_PATH=$(cd $(dirname $0) && pwd) && cd $WORK_PATH
 
+CUDA_ARCHITECTURE=86 # a: (Tesla P100: 60, GTX1080Ti: 61, Tesla V100: 70, RTX2080Ti: 75, NVIDIA A100: 80, RTX3080Ti / RTX3090 / RTX A6000: 86, RTX4090: 89, NVIDIA H100: 90)
 BUILD_TYPE=Debug # t: (Debug, Release)
 WITH_SAMPLE=ON # s: (ON, OFF)
 VERBOSE_MAKEFILE=OFF # b: (ON, OFF)
 
-while getopts ":t:s:b:" opt
+while getopts ":a:t:s:b:" opt
 do
     case $opt in
+        a)
+        CUDA_ARCHITECTURE=$OPTARG
+        echo "CUDA_ARCHITECTURE: $CUDA_ARCHITECTURE"
+        ;;
         t)
         BUILD_TYPE=$OPTARG
         echo "BUILD_TYPE: $BUILD_TYPE"
@@ -49,8 +54,8 @@ echo_cmd "rm -rf build output"
 echo_cmd "mkdir build"
 
 echo_cmd "cd build"
-echo_cmd "cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DHOOK_WITH_SAMPLE=$WITH_SAMPLE -DHOOK_VERBOSE_MAKEFILE=$VERBOSE_MAKEFILE -DCMAKE_INSTALL_PREFIX=$WORK_PATH/output -DCMAKE_SKIP_RPATH=ON .."
-echo_cmd "make -j"
+echo_cmd "cmake -DCMAKE_CUDA_ARCHITECTURES=$CUDA_ARCHITECTURE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DHOOK_WITH_SAMPLE=$WITH_SAMPLE -DHOOK_VERBOSE_MAKEFILE=$VERBOSE_MAKEFILE -DCMAKE_INSTALL_PREFIX=$WORK_PATH/output -DCMAKE_SKIP_RPATH=ON .."
+echo_cmd "make -j$(nproc --ignore=2)"
 echo_cmd "make install"
 
 echo "========== create soft link =========="
@@ -107,6 +112,10 @@ echo_cmd "ln -s libcusolver.so.11 libcusolver.so"
 echo_cmd "ln -s libcuda_hook.so libnvjpeg.so.11"
 echo_cmd "ln -s libnvjpeg.so.11 libnvjpeg.so"
 
+# nvblas
+echo_cmd "ln -s libcuda_hook.so libnvblas.so.11"
+echo_cmd "ln -s libnvblas.so.11 libnvblas.so"
+
 echo_cmd "cp -d *.so *.so.* $WORK_PATH/output/lib64"
 
 echo "========== build info =========="
@@ -116,9 +125,9 @@ COMMIT=`git rev-parse HEAD`
 GCC_VERSION=`gcc -dumpversion`
 COMPILE_TIME=$(date "+%H:%M:%S %Y-%m-%d")
 
-echo "branch: $BRANCH" >> $WORK_PATH/output/ch_version
-echo "commit: $COMMIT" >> $WORK_PATH/output/ch_version
-echo "gcc_version: $GCC_VERSION" >> $WORK_PATH/output/ch_version
-echo "compile_time: $COMPILE_TIME" >> $WORK_PATH/output/ch_version
+echo "branch: $BRANCH" >> $WORK_PATH/output/hook_version
+echo "commit: $COMMIT" >> $WORK_PATH/output/hook_version
+echo "gcc_version: $GCC_VERSION" >> $WORK_PATH/output/hook_version
+echo "compile_time: $COMPILE_TIME" >> $WORK_PATH/output/hook_version
 
 echo "========== build exit =========="

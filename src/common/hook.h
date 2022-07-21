@@ -77,6 +77,10 @@ public:
         HOOK_GET_SYMBOL(nvjpeg, symbol_name);
     }
 
+    static void *GetNVBLASSymbol(const std::string &symbol_name) {
+        HOOK_GET_SYMBOL(nvblas, symbol_name);
+    }
+
 private:
     // nvidia native cuda dynamic library can be modified to any other unambiguous name, or moved to any path
     static constexpr const char *s_cuda_dso = "/usr/lib/x86_64-linux-gnu/libcuda.so";
@@ -92,6 +96,7 @@ private:
     static constexpr const char *s_cusparse_dso = "/usr/local/cuda/targets/x86_64-linux/lib/libcusparse.so";
     static constexpr const char *s_cusolver_dso = "/usr/local/cuda/targets/x86_64-linux/lib/libcusolver.so";
     static constexpr const char *s_nvjpeg_dso = "/usr/local/cuda/targets/x86_64-linux/lib/libnvjpeg.so";
+    static constexpr const char *s_nvblas_dso = "/usr/local/cuda/targets/x86_64-linux/lib/libnvblas.so";
 
     HOOK_DISALLOW_COPY_AND_ASSIGN(Hook);
 };
@@ -109,5 +114,6 @@ private:
 #define HOOK_CUSPARSE_SYMBOL(symbol_name) Hook::GetCUSPARSESymbol(symbol_name)
 #define HOOK_CUSOLVER_SYMBOL(symbol_name) Hook::GetCUSOLVERSymbol(symbol_name)
 #define HOOK_NVJPEG_SYMBOL(symbol_name) Hook::GetNVJPEGSymbol(symbol_name)
+#define HOOK_NVBLAS_SYMBOL(symbol_name) Hook::GetNVBLASSymbol(symbol_name)
 
 #endif  // __CUDA_HOOK_HOOK_H__

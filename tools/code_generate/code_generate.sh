@@ -74,3 +74,8 @@ python3 code_generate.py -t cusolver -f include/cusolver_common.h -o output
 python3 code_generate.py -t nvjpeg -f include/nvjpeg.h -o output
 # mkdir -p ../../src/nvjpeg
 # cp output/nvjpeg_hook.cpp ../../src/nvjpeg
+
+# python3 -m CppHeaderParser.tojson include/nvblas.h > output/nvblas.json
+python3 code_generate.py -t nvblas -f include/nvblas.h -o output
+# mkdir -p ../../src/nvblas
+# cp output/nvblas_hook.cpp ../../src/nvblas

@@ -4,7 +4,7 @@
 #
 # Description: cmake for cuda hook
 
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.12)
 
 project (cuda_hook LANGUAGES C CXX)
 
@@ -50,32 +50,21 @@ include_directories (
     ${PROJECT_SOURCE_DIR}/src/cusparse
     ${PROJECT_SOURCE_DIR}/src/cusolver
     ${PROJECT_SOURCE_DIR}/src/nvjpeg
+    ${PROJECT_SOURCE_DIR}/src/nvblas
 )
 
-set (LIB_SRCS
-    ${PROJECT_SOURCE_DIR}/src/cuda/cuda_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/nvml/nvml_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/cudart/cudart_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/cudnn/cudnn_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/cublas/cublas_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/cublasLt/cublasLt_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/cufft/cufft_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/nvtx/nvtx_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/nvrtc/nvrtc_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/curand/curand_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/cusparse/cusparse_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/cusolver/cusolver_hook.cpp
-    ${PROJECT_SOURCE_DIR}/src/nvjpeg/nvjpeg_hook.cpp
+file (GLOB HOOK_SRCS 
+    ${PROJECT_SOURCE_DIR}/src/*/*.cpp
 )
 
 # libcuda_hook.so
-add_library (cuda_hook SHARED ${LIB_SRCS})
+add_library (cuda_hook SHARED ${HOOK_SRCS})
 target_link_libraries (cuda_hook -ldl)
 
 install (TARGETS cuda_hook LIBRARY DESTINATION lib64)
 
 # libcuda_hook.a
-add_library (cuda_hook_static STATIC ${LIB_SRCS})
+add_library (cuda_hook_static STATIC ${HOOK_SRCS})
 target_link_libraries (cuda_hook_static -ldl)
 set_target_properties (cuda_hook_static PROPERTIES OUTPUT_NAME cuda_hook)
 
@@ -88,8 +77,13 @@ if (HOOK_WITH_SAMPLE)
 
     set (CUDA_VERBOSE_BUILD ${HOOK_VERBOSE_MAKEFILE})
     set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std=c++11")
+    if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
+        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -arch=sm_${CMAKE_CUDA_ARCHITECTURES} -g -lineinfo -O0")
+    else ()
+        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_${CMAKE_CUDA_ARCHITECTURES},code=sm_${CMAKE_CUDA_ARCHITECTURES} --use_fast_math -O3")
+    endif ()
 
-    set (SYS_CUDART_PATH "/usr/local/cuda/targets/x86_64-linux")
+    set (SYS_CUDART_PATH "/usr/local/cuda")
     set (SYS_CUDA_DRIVER_PATH "/usr/lib/x86_64-linux-gnu")
 
     include_directories (
@@ -98,7 +92,7 @@ if (HOOK_WITH_SAMPLE)
     )
 
     link_directories (
-        ${SYS_CUDART_PATH}/lib
+        ${SYS_CUDART_PATH}/lib64
         ${SYS_CUDA_DRIVER_PATH}
     )
 
