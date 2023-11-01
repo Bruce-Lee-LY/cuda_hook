@@ -17,7 +17,7 @@ BUILD_TYPE=Debug # t: (Debug, Release)
 WITH_SAMPLE=ON # s: (ON, OFF)
 VERBOSE_MAKEFILE=OFF # b: (ON, OFF)
 
-while getopts ":a:t:s:b:" opt
+while getopts ":t:s:b:" opt
 do
     case $opt in
         a)
