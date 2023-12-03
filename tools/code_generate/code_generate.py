@@ -87,6 +87,8 @@ HOOK_C_API HOOK_DECL_EXPORT $ret$ $func_name$($func_param$) {
                     func_param += ", "
                     param_type += ", "
                     param_name += ", "
+                if param["array"] == 1:
+                    param["type"] += "*"
                 func_param += (param["type"] + " " + param["name"])
                 param_type += param["type"]
                 param_name += param["name"]
